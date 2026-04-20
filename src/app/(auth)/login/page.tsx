@@ -1,22 +1,30 @@
-import { login } from './actions'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { AlertCircle } from 'lucide-react'
+import { login } from "./actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
 
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>
+  searchParams: Promise<{ error?: string }>;
 }) {
-  const params = await searchParams
+  const params = await searchParams;
 
   return (
     <div className="flex h-screen w-full items-center justify-center bg-gray-50 px-4">
       <Card className="mx-auto max-w-sm w-full">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-blue-900">HesbornONE</CardTitle>
+          <CardTitle className="text-2xl font-bold text-blue-900">
+            GasPro Hub
+          </CardTitle>
           <CardDescription>
             Enter your owner credentials to login to your workspace.
           </CardDescription>
@@ -45,12 +53,15 @@ export default async function LoginPage({
               </div>
               <Input id="password" name="password" type="password" required />
             </div>
-            <Button type="submit" className="w-full bg-blue-900 hover:bg-blue-800 text-white">
+            <Button
+              type="submit"
+              className="w-full bg-blue-900 hover:bg-blue-800 text-white"
+            >
               Login
             </Button>
           </form>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

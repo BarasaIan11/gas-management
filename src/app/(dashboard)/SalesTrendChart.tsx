@@ -34,12 +34,16 @@ export function SalesTrendChart({ data }: Props) {
   }))
 
   if (!isMounted) {
-    return <div className="w-full h-48 mt-4" /> // Placeholder to maintain layout
+    return (
+      <div className="w-full h-48 mt-4 bg-gray-50/50 rounded-xl animate-pulse flex items-center justify-center text-[10px] font-bold text-gray-300 uppercase tracking-widest">
+        Loading Trend...
+      </div>
+    )
   }
 
   return (
-    <div className="w-full h-48 mt-4">
-      <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+    <div className="w-full h-48 mt-4" style={{ minHeight: '192px' }}>
+      <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={chartData}
           margin={{
