@@ -2,7 +2,7 @@
 
 A comprehensive, state-of-the-art solution for managing gas cylinder business operations across multiple branches. Built with modern web technologies, GasPro Hub provides real-time stock tracking, sales logging, and performance analytics.
 
-![Dashboard Preview](public/icon-512.png) _(Note: Add a real screenshot here for your GitHub repo)_
+![Dashboard Preview](public/dashboard-preview.png)
 
 ## 🌟 Key Features
 
