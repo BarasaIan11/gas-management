@@ -68,14 +68,16 @@ export function StockClient({ shopId, date, initialData }: Props) {
 
         <div className="flex items-center gap-3">
           <DatePicker date={date} shopId={shopId} />
-          <Button 
-            onClick={handleSave}
-            disabled={loading || !hasChanges}
-            className="bg-blue-900 hover:bg-blue-800 text-white shadow-md rounded-xl px-6 min-w-[180px]"
-          >
-            {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-            {hasChanges ? 'Save Changes' : 'Update Opening Stock'}
-          </Button>
+          {shopId !== 'ALL' && (
+            <Button 
+              onClick={handleSave}
+              disabled={loading || !hasChanges}
+              className="bg-blue-900 hover:bg-blue-800 text-white shadow-md rounded-xl px-6 min-w-[180px]"
+            >
+              {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              {hasChanges ? 'Save Changes' : 'Update Opening Stock'}
+            </Button>
+          )}
         </div>
       </header>
 
@@ -118,7 +120,8 @@ export function StockClient({ shopId, date, initialData }: Props) {
                                 type="number" 
                                 value={cyl.empty_count} 
                                 onChange={(e) => handleUpdate(originalIndex, 'empty_count', e.target.value)}
-                                className="w-20 text-center font-bold text-lg bg-gray-50 border-none rounded-lg focus:ring-2 focus:ring-blue-100"
+                                disabled={shopId === 'ALL'}
+                                className="w-20 text-center font-bold text-lg bg-gray-50 border-none rounded-lg focus:ring-2 focus:ring-blue-100 disabled:opacity-75 disabled:cursor-not-allowed"
                              />
                             <span className="text-[10px] text-gray-400 font-bold tracking-widest uppercase">Reserved</span>
                           </div>
@@ -129,7 +132,8 @@ export function StockClient({ shopId, date, initialData }: Props) {
                                 type="number" 
                                 value={cyl.full_count} 
                                 onChange={(e) => handleUpdate(originalIndex, 'full_count', e.target.value)}
-                                className="w-24 text-center font-bold text-xl bg-green-50 text-green-700 border-none rounded-xl focus:ring-2 focus:ring-green-100 py-6"
+                                disabled={shopId === 'ALL'}
+                                className="w-24 text-center font-bold text-xl bg-green-50 text-green-700 border-none rounded-xl focus:ring-2 focus:ring-green-100 py-6 disabled:opacity-75 disabled:cursor-not-allowed"
                              />
                             <span className="text-[10px] text-green-600 font-bold tracking-widest uppercase">Ready For Sale</span>
                           </div>

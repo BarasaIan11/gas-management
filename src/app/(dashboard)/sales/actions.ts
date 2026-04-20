@@ -12,34 +12,40 @@ export async function getSalesData(shopId: string | undefined, date: string) {
     shopId = shops[0].id
   }
 
-  // Fetch sales for this day
-  const { data: salesData } = await supabase
+  let salesQuery = supabase
     .from('sales')
     .select('*, brands(name), sizes(size_kg, label)')
-    .eq('shop_id', shopId)
     .eq('date', date)
     .order('created_at', { ascending: false })
 
-  // Fetch full stock from cylinder_stock and join prices
-  // Since prices is shop_id+brand_id+size_id, we need to manually combine or fetch prices 
-  const [stockRes, pricesRes] = await Promise.all([
-    supabase
-      .from('cylinder_stock')
-      .select('*, brands(name), sizes(size_kg, label)')
-      .eq('shop_id', shopId)
-      .eq('date', date),
-    supabase
-      .from('prices')
-      .select('*')
-      .eq('shop_id', shopId)
-  ])
+  if (shopId !== 'ALL') {
+    salesQuery = salesQuery.eq('shop_id', shopId)
+  }
+
+  const { data: salesData } = await salesQuery
+
+  let stockQuery = supabase
+    .from('cylinder_stock')
+    .select('*, brands(name), sizes(size_kg, label)')
+    .eq('date', date)
+
+  if (shopId !== 'ALL') {
+    stockQuery = stockQuery.eq('shop_id', shopId)
+  }
+
+  let pricesQuery = supabase.from('prices').select('*')
+  if (shopId !== 'ALL') {
+    pricesQuery = pricesQuery.eq('shop_id', shopId)
+  }
+
+  const [stockRes, pricesRes] = await Promise.all([stockQuery, pricesQuery])
 
   const stock = stockRes.data || []
   const prices = pricesRes.data || []
 
-  // Map stock with prices
-  const availableStock = stock.map((s: any) => {
-    const priceRecord = prices.find((p: any) => p.brand_id === s.brand_id && p.size_id === s.size_id)
+  const mappedStock = stock.map((s: any) => {
+    // If shopId is ALL, prices might vary by shop, but for the banner we just need count.
+    const priceRecord = prices.find((p: any) => p.brand_id === s.brand_id && p.size_id === s.size_id && (shopId === 'ALL' ? true : p.shop_id === shopId))
     return {
       stock_id: s.id,
       brand_id: s.brand_id,
@@ -52,6 +58,22 @@ export async function getSalesData(shopId: string | undefined, date: string) {
       unit_price: priceRecord?.price || 0
     }
   })
+
+  let availableStock = mappedStock
+  if (shopId === 'ALL') {
+    const aggregated = new Map()
+    mappedStock.forEach(s => {
+      const key = `${s.brand_id}_${s.size_id}`
+      if (!aggregated.has(key)) {
+        aggregated.set(key, { ...s, stock_id: `grouped_${s.brand_id}_${s.size_id}` })
+      } else {
+        const existing = aggregated.get(key)
+        existing.full_count += s.full_count
+        existing.empty_count += s.empty_count
+      }
+    })
+    availableStock = Array.from(aggregated.values())
+  }
 
   const sales = (salesData || []).map((s: any) => ({
     id: s.id,

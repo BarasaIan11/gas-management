@@ -1,20 +1,11 @@
 import { getStockData } from './actions'
-import { createClient } from '@/utils/supabase/server'
 import { StockClient } from './StockClient'
 
 export default async function StockPage(props: { searchParams: Promise<{ shop?: string, date?: string }> }) {
   const params = await props.searchParams
   const date = params.date || new Date().toISOString().split('T')[0]
   
-  // Need to get the first shop if none is selected
-  let shopId = params.shop
-  if (!shopId) {
-    const supabase = await createClient()
-    const { data: shops } = await supabase.from('shops').select('id').limit(1)
-    if (shops && shops.length > 0) {
-      shopId = shops[0].id
-    }
-  }
+  const shopId = params.shop || 'ALL'
 
   if (!shopId) {
     return (
@@ -29,6 +20,7 @@ export default async function StockPage(props: { searchParams: Promise<{ shop?: 
   return (
     <div className="p-4 md:p-8 space-y-8 max-w-6xl mx-auto">
       <StockClient 
+        key={`${shopId}-${date}`}
         shopId={shopId} 
         date={date} 
         initialData={stockData} 

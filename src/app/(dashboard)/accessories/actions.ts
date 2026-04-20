@@ -15,7 +15,9 @@ export async function getAccessoriesData(shopId: string | undefined, date: strin
 
   const [accessoriesRes, stockRes] = await Promise.all([
     supabase.from('accessories').select('*').order('name'),
-    supabase.from('accessory_stock').select('*').eq('shop_id', shopId).eq('date', date)
+    shopId === 'ALL'
+      ? supabase.from('accessory_stock').select('*').eq('date', date)
+      : supabase.from('accessory_stock').select('*').eq('shop_id', shopId).eq('date', date)
   ])
 
   const accessories = (accessoriesRes.data as Accessory[]) || []
@@ -23,16 +25,21 @@ export async function getAccessoriesData(shopId: string | undefined, date: strin
 
   // Combine into unified format
   return accessories.map(acc => {
-    const accStock = stock.find(s => s.accessory_id === acc.id)
+    const accStocks = stock.filter(s => s.accessory_id === acc.id)
+    const totalOpeningStock = accStocks.reduce((sum, s) => sum + (s.opening_stock || 0), 0)
+    const totalUnitsAdded = accStocks.reduce((sum, s) => sum + (s.units_added || 0), 0)
+    const totalUnitsSold = accStocks.reduce((sum, s) => sum + (s.units_sold || 0), 0)
+    const totalRevenueEst = accStocks.reduce((sum, s) => sum + (s.revenue_est || 0), 0)
+
     return {
       id: acc.id,
       name: acc.name,
-      stock_id: accStock?.id,
-      opening_stock: accStock?.opening_stock || 0,
-      units_added: accStock?.units_added || 0,
-      units_sold: accStock?.units_sold || 0,
-      revenue_est: accStock?.revenue_est || 0,
-      remaining: (accStock?.opening_stock || 0) + (accStock?.units_added || 0) - (accStock?.units_sold || 0)
+      stock_id: accStocks[0]?.id,
+      opening_stock: totalOpeningStock,
+      units_added: totalUnitsAdded,
+      units_sold: totalUnitsSold,
+      revenue_est: totalRevenueEst,
+      remaining: totalOpeningStock + totalUnitsAdded - totalUnitsSold
     }
   })
 }
@@ -59,7 +66,7 @@ export async function logAccessoryAction(formData: FormData) {
     .single()
 
   if (existing) {
-    let updates: any = { updated_at: new Date().toISOString() }
+    const updates: Record<string, string | number> = { updated_at: new Date().toISOString() }
     
     if (actionType === 'SALE') {
       const remaining = existing.opening_stock + existing.units_added - existing.units_sold

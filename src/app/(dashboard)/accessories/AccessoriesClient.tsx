@@ -118,35 +118,39 @@ export function AccessoriesClient({
           </p>
         </div>
         <div className="flex gap-3 shrink-0">
-          <Button 
-            variant="outline" 
-            className="gap-2 rounded-xl border-2 font-semibold"
-            onClick={() => {
-              setActionType('SALE')
-              document.getElementById('stock-action-form')?.scrollIntoView({ behavior: 'smooth' })
-            }}
-          >
-            <ShoppingCart className="w-4 h-4" />
-            Log Sale
-          </Button>
-          <Button 
-            className="bg-blue-900 hover:bg-blue-800 text-white gap-2 rounded-xl font-semibold shadow-md"
-            onClick={() => {
-              setActionType('RESTOCK')
-              document.getElementById('stock-action-form')?.scrollIntoView({ behavior: 'smooth' })
-            }}
-          >
-            <RefreshCw className="w-4 h-4" />
-            Restock Items
-          </Button>
+          {shopId !== 'ALL' && (
+            <>
+              <Button 
+                variant="outline" 
+                className="gap-2 rounded-xl border-2 font-semibold"
+                onClick={() => {
+                  setActionType('SALE')
+                  document.getElementById('stock-action-form')?.scrollIntoView({ behavior: 'smooth' })
+                }}
+              >
+                <ShoppingCart className="w-4 h-4" />
+                Log Sale
+              </Button>
+              <Button 
+                className="bg-blue-900 hover:bg-blue-800 text-white gap-2 rounded-xl font-semibold shadow-md"
+                onClick={() => {
+                  setActionType('RESTOCK')
+                  document.getElementById('stock-action-form')?.scrollIntoView({ behavior: 'smooth' })
+                }}
+              >
+                <RefreshCw className="w-4 h-4" />
+                Restock Items
+              </Button>
+            </>
+          )}
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className={`grid grid-cols-1 ${shopId === 'ALL' ? '' : 'md:grid-cols-3'} gap-6`}>
         {/* Left: Accessory Cards */}
-        <div className="md:col-span-2 space-y-6">
+        <div className={`${shopId === 'ALL' ? '' : 'md:col-span-2'} space-y-6`}>
           {/* Featured 4 in 2x2 grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className={`grid grid-cols-1 sm:grid-cols-2 ${shopId === 'ALL' ? 'md:grid-cols-4' : ''} gap-6`}>
             {featured.map((acc) => (
               <Card
                 key={acc.id}
@@ -277,96 +281,98 @@ export function AccessoriesClient({
 
         {/* Right: Stock Action Panel */}
         <div className="space-y-4">
-          <Card id="stock-action-form" className="bg-white border border-gray-100 shadow-sm rounded-2xl overflow-hidden scroll-mt-20">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">
-                Stock Action
-              </h3>
+          {shopId !== 'ALL' && (
+            <Card id="stock-action-form" className="bg-white border border-gray-100 shadow-sm rounded-2xl overflow-hidden scroll-mt-20">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Stock Action
+                </h3>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                  <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">
-                    Action Type
-                  </Label>
-                  <div className="flex rounded-xl border border-gray-200 overflow-hidden">
-                    <button
-                      type="button"
-                      className={`flex-1 py-2 text-sm font-bold transition-colors ${actionType === "SALE" ? "bg-blue-900 text-white" : "bg-white text-gray-500 hover:bg-gray-50"}`}
-                      onClick={() => setActionType("SALE")}
-                    >
-                      Sale
-                    </button>
-                    <button
-                      type="button"
-                      className={`flex-1 py-2 text-sm font-bold transition-colors ${actionType === "RESTOCK" ? "bg-blue-900 text-white" : "bg-white text-gray-500 hover:bg-gray-50"}`}
-                      onClick={() => setActionType("RESTOCK")}
-                    >
-                      Restock
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">
-                    Select Accessory
-                  </Label>
-                  <select
-                    className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-900 outline-none focus:ring-2 focus:ring-blue-200"
-                    value={selectedId}
-                    onChange={(e) => setSelectedId(e.target.value)}
-                  >
-                    {accessories.map((acc) => (
-                      <option key={acc.id} value={acc.id}>
-                        {acc.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">
-                    Quantity
-                  </Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={quantity}
-                    onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-                    className="rounded-xl"
-                    required
-                  />
-                </div>
-
-                {actionType === "SALE" && (
+                <form onSubmit={handleSubmit} className="space-y-5">
                   <div>
                     <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">
-                      Revenue (KES)
+                      Action Type
+                    </Label>
+                    <div className="flex rounded-xl border border-gray-200 overflow-hidden">
+                      <button
+                        type="button"
+                        className={`flex-1 py-2 text-sm font-bold transition-colors ${actionType === "SALE" ? "bg-blue-900 text-white" : "bg-white text-gray-500 hover:bg-gray-50"}`}
+                        onClick={() => setActionType("SALE")}
+                      >
+                        Sale
+                      </button>
+                      <button
+                        type="button"
+                        className={`flex-1 py-2 text-sm font-bold transition-colors ${actionType === "RESTOCK" ? "bg-blue-900 text-white" : "bg-white text-gray-500 hover:bg-gray-50"}`}
+                        onClick={() => setActionType("RESTOCK")}
+                      >
+                        Restock
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">
+                      Select Accessory
+                    </Label>
+                    <select
+                      className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-900 outline-none focus:ring-2 focus:ring-blue-200"
+                      value={selectedId}
+                      onChange={(e) => setSelectedId(e.target.value)}
+                    >
+                      {accessories.map((acc) => (
+                        <option key={acc.id} value={acc.id}>
+                          {acc.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">
+                      Quantity
                     </Label>
                     <Input
                       type="number"
-                      step="0.01"
-                      min="0"
-                      value={revenue}
-                      onChange={(e) =>
-                        setRevenue(parseFloat(e.target.value) || 0)
-                      }
+                      min="1"
+                      value={quantity}
+                      onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
                       className="rounded-xl"
+                      required
                     />
                   </div>
-                )}
 
-                {error && <p className="text-red-500 text-sm">{error}</p>}
+                  {actionType === "SALE" && (
+                    <div>
+                      <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">
+                        Revenue (KES)
+                      </Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={revenue}
+                        onChange={(e) =>
+                          setRevenue(parseFloat(e.target.value) || 0)
+                        }
+                        className="rounded-xl"
+                      />
+                    </div>
+                  )}
 
-                <Button
-                  type="submit"
-                  disabled={loading || quantity <= 0}
-                  className="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-xl"
-                >
-                  {loading ? "Processing..." : "Update Inventory"}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+                  {error && <p className="text-red-500 text-sm">{error}</p>}
+
+                  <Button
+                    type="submit"
+                    disabled={loading || quantity <= 0}
+                    className="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-xl"
+                  >
+                    {loading ? "Processing..." : "Update Inventory"}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Shop Card */}
           <div className="relative bg-blue-900 rounded-2xl overflow-hidden h-48">

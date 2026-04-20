@@ -14,12 +14,12 @@ export function ShopSwitcher({ shops }: { shops: Shop[] }) {
   const router = useRouter()
   const pathname = usePathname()
   
-  const currentShopId = searchParams.get('shop') || shops[0]?.id || ''
+  const currentShopId = searchParams.get('shop') || 'ALL'
 
   const handleShopChange = (v: string | null) => {
     const params = new URLSearchParams(searchParams)
     if (v === 'ALL' || !v) {
-      params.delete('shop')
+      params.set('shop', 'ALL')
     } else {
       params.set('shop', v)
     }
@@ -34,7 +34,7 @@ export function ShopSwitcher({ shops }: { shops: Shop[] }) {
         <div className="flex items-center gap-2 max-w-[180px]">
           <div className="shrink-0 w-2 h-2 rounded-full bg-green-500" />
           <div className="truncate text-sm font-bold text-gray-900">
-            {activeShop?.name || 'All Shops'}
+            {activeShop?.name || (currentShopId === 'ALL' ? 'All Shops' : 'Unknown')}
           </div>
         </div>
       </SelectTrigger>

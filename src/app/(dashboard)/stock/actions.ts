@@ -21,9 +21,11 @@ export async function getStockData(shopId: string | undefined, date: string) {
   const [brandsRes, sizesRes, stockRes] = await Promise.all([
     supabase.from('brands').select('*').order('name'),
     supabase.from('sizes').select('*').order('size_kg'),
-    shopId 
-      ? supabase.from('cylinder_stock').select('*').eq('shop_id', shopId).eq('date', date)
-      : Promise.resolve({ data: [] })
+    shopId === 'ALL'
+      ? supabase.from('cylinder_stock').select('*').eq('date', date)
+      : (shopId
+          ? supabase.from('cylinder_stock').select('*').eq('shop_id', shopId).eq('date', date)
+          : Promise.resolve({ data: [] }))
   ])
 
   const brands = (brandsRes.data as Brand[]) || []
@@ -35,13 +37,19 @@ export async function getStockData(shopId: string | undefined, date: string) {
   
   for (const brand of brands) {
     for (const size of sizes) {
-      const existing = stockRecords.find(s => s.brand_id === brand.id && s.size_id === size.id)
+      const existingRecords = stockRecords.filter(s => s.brand_id === brand.id && s.size_id === size.id)
+      
+      const emptyCount = existingRecords.reduce((sum, r) => sum + (r.empty_count || 0), 0)
+      const fullCount = existingRecords.reduce((sum, r) => sum + (r.full_count || 0), 0)
+      // ID uses the first one found, though for 'ALL', updating isn't allowed anyway
+      const existingId = existingRecords[0]?.id
+
       matrix.push({
-        id: existing?.id,
+        id: existingId,
         brand_id: brand.id,
         size_id: size.id,
-        empty_count: existing?.empty_count || 0,
-        full_count: existing?.full_count || 0,
+        empty_count: emptyCount,
+        full_count: fullCount,
         brand_name: brand.name,
         size_kg: size.size_kg,
         label: size.label

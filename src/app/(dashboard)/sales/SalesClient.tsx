@@ -84,13 +84,15 @@ export function SalesClient({
         </div>
 
         <div className="flex items-center gap-3">
-          <Button
-            className="bg-green-700 hover:bg-green-800 text-white shadow-md text-lg px-6 py-6 rounded-xl"
-            onClick={() => setIsAdding(!isAdding)}
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            Add New Sale
-          </Button>
+          {shopId !== 'ALL' && (
+            <Button
+              className="bg-green-700 hover:bg-green-800 text-white shadow-md text-lg px-6 py-6 rounded-xl"
+              onClick={() => setIsAdding(!isAdding)}
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Add New Sale
+            </Button>
+          )}
         </div>
       </header>
 
